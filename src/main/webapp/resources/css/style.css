@@ -1,0 +1,28 @@
+.title {
+    text-align: center;
+}
+
+.input-set {
+    margin: 0px auto;
+}
+
+.result-container {
+    display: flex;
+    justify-content: center;
+}
+
+.result {
+    display: flex;
+}
+
+.left-result {
+    margin-right: 8px;
+}
+
+.result table {
+    width: auto;
+}
+
+.hide-table-header thead {
+    display: none;
+}

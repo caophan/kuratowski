@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+	<h:head>
+		<title>Kuratowski Demo</title>
+	</h:head>
+
+	<h:body>
+		<h2 class="title">Kuratowski Demo</h2>
+		<h:outputStylesheet library="css" name="style.css" />
+
+		<h:form>
+			<h:panelGrid columns="10" styleClass="input-set">
+				<ui:repeat value="#{kuratowskiBean.inputSet}" var="item" varStatus="row">
+					<p:selectBooleanCheckbox value="#{kuratowskiBean.selectionSet[row.index]}" itemLabel="#{item}">
+						<p:ajax process="@this" update=":#{p:component('result')}" listener="#{kuratowskiBean.calculate}" />
+					</p:selectBooleanCheckbox>
+				</ui:repeat>
+			</h:panelGrid>
+		</h:form>
+		<div class="result-container">
+			<h:panelGroup id="result" styleClass="result">
+				<p:dataTable value="#{kuratowskiBean.left}" var="item" styleClass="left-result hide-table-header">
+					<p:column>
+						<h:outputText value="#{item[0]}" />
+					</p:column>
+					<p:column>
+						<h:outputText value="#{item[1]}" />
+					</p:column>	
+				</p:dataTable>
+		
+				<p:dataTable value="#{kuratowskiBean.right}" var="item" styleClass="hide-table-header">
+					<p:column>
+						<h:outputText value="#{item[0]}" />
+					</p:column>
+					<p:column>
+						<h:outputText value="#{item[1]}" />
+					</p:column>	
+				</p:dataTable>
+			</h:panelGroup>
+		</div>
+	</h:body>
+</html>
