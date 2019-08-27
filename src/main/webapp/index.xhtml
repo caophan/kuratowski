@@ -17,7 +17,7 @@
 			<h:panelGrid columns="10" styleClass="input-set">
 				<ui:repeat value="#{kuratowskiBean.inputSet}" var="item" varStatus="row">
 					<p:selectBooleanCheckbox value="#{kuratowskiBean.selectionSet[row.index]}" itemLabel="#{item}">
-						<p:ajax process="@this" update=":#{p:component('result')}" listener="#{kuratowskiBean.calculate}" />
+						<p:ajax process="@form" update=":#{p:component('result')}" listener="#{kuratowskiBean.calculate}" />
 					</p:selectBooleanCheckbox>
 				</ui:repeat>
 			</h:panelGrid>

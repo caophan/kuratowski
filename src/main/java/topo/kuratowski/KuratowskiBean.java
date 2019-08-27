@@ -23,7 +23,7 @@ import lombok.Getter;
 @ManagedBean
 @RequestScoped
 public class KuratowskiBean {
-	private static final String SEQUENCE = "ckckck";
+	private static final String SEQUENCE = "ababab";
 	private boolean[] selectionSet;
 	private List<Interval> inputSet;
 	private List<String[]> left;
@@ -32,27 +32,30 @@ public class KuratowskiBean {
 	@PostConstruct
 	public void init() {
 		selectionSet = new boolean[10];
-		inputSet = Arrays.asList(new Interval(null, false, 1, false), new Point(1), new Interval(1, false, 2, false),
-				new Point(2), new Interval(2, false, 4, false, 1), new Interval(2, false, 4, false, 2), new Point(4),
-				new Interval(4, false, 5, false), new Point(5), new Interval(5, false));
+		// inputSet = Arrays.asList(new Interval(null, false, 1, false), new Point(1), new Interval(1, false, 2, false),
+		// 		new Point(2), new Interval(2, false, 4, false, 1), new Interval(2, false, 4, false, 2), new Point(4),
+    // 		new Interval(4, false, 5, false), new Point(5), new Interval(5, false));
+    inputSet = Arrays.asList(new Interval(0, false, 1, false), new Interval(1, false, 2, false), new Point(3), new Interval(4, false, 5, false, 1));
 	}
 
 	public void calculate(AjaxBehaviorEvent event) {
-		List<Interval> E = IntStream.range(0, inputSet.size()).filter(i -> selectionSet[i])
-				.mapToObj(i -> inputSet.get(i)).collect(Collectors.toList());
-		Map<String, Object> map = main(E);
 		left = new ArrayList<>();
 		right = new ArrayList<>();
 
-		for (int i = -1; i < SEQUENCE.length(); i++) {
-			String key = buildKey(i, true);
-			Object value = map.get(key);
-			left.add(new String[] {key, print(value)});
+    List<Interval> A = IntStream.range(0, inputSet.size()).filter(i -> selectionSet[i]).mapToObj(i -> inputSet.get(i))
+        .collect(Collectors.toList());
+    if (!A.isEmpty()) {
+      Map<String, Object> map = main(A);
+      for (int i = -1; i < SEQUENCE.length(); i++) {
+        String key = buildKey(i, true);
+        Object value = map.get(key);
+        left.add(new String[] { key, print(value) });
 
-			key = buildKey(i, false);
-			value = map.get(key);
-			right.add(new String[] {key, print(value)});
-		}
+        key = buildKey(i, false);
+        value = map.get(key);
+        right.add(new String[] { key, print(value) });
+      }
+    }
 	}
 
 	private String print(Object value) {
@@ -62,7 +65,7 @@ public class KuratowskiBean {
 		} else if (value instanceof List) {
 			List<Interval> list = (List<Interval>) value;
 			if (list.isEmpty()) {
-				return "0";
+				return Interval.EMPTY;
 			} else {
 				return list.stream().map(Interval::toString).collect(Collectors.joining(" U "));
 			}
@@ -71,38 +74,38 @@ public class KuratowskiBean {
 		}
 	}
 
-	public Map<String, Object> main(List<Interval> E) {
+	public Map<String, Object> main(List<Interval> A) {
 		Map<String, Object> map = new HashMap<>();
-		sortInterval(E);
-		E = merge(E);
-		E = merge(E);
+		sortInterval(A);
+		A = merge(A);
+		A = merge(A);
 
-		List<Interval> cE = complement(E);
-		map.put("E", E);
-		map.put("cE", cE);
+		List<Interval> aA = complement(A);
+		map.put("A", A);
+		map.put("aA", aA);
 
-		for (int i = 0; i < 6 && (E != null || cE != null); i++) {
+		for (int i = 0; i < 6 && (A != null || aA != null); i++) {
 			String key;
 			Object item;
 			boolean closureBuilder = i % 2 == 0;
 
-			if (E != null) {
-				key = buildSet(map, E, i, true, closureBuilder);
+			if (A != null) {
+				key = buildSet(map, A, i, true, closureBuilder);
 				item = map.get(key);
 				if (item instanceof String) {
-					E = null;
+					A = null;
 				} else {
-					E = (List<Interval>) item;
+					A = (List<Interval>) item;
 				}
 			}
 
-			if (cE != null) {
-				key = buildSet(map, cE, i, false, closureBuilder);
+			if (aA != null) {
+				key = buildSet(map, aA, i, false, closureBuilder);
 				item = map.get(key);
 				if (item instanceof String) {
-					cE = null;
+					aA = null;
 				} else {
-					cE = (List<Interval>) item;
+					aA = (List<Interval>) item;
 				}
 			}
 		}
@@ -135,9 +138,9 @@ public class KuratowskiBean {
 	public String buildKey(int i, boolean branch) {
 		String prefix = SEQUENCE.substring(5 - i);
 		if (branch) {
-			return prefix.concat("E");
+			return prefix.concat("A");
 		} else {
-			return prefix.concat("cE");
+			return prefix.concat("aA");
 		}
 	}
 
@@ -299,7 +302,9 @@ class Interval {
 	private Integer right;
 	private boolean leftInclude;
 	private boolean rightInclude;
-	private int type;// 0:real, 1:rational, 2:irrational
+  private int type;// 0:real, 1:rational, 2:irrational
+  public static final String INFINITY = "\u221E";
+  public static final String EMPTY = "\u2205";
 
 	public Interval() {
 		this(null, false);
@@ -342,7 +347,7 @@ class Interval {
 
 	public int getType() {
 		return type;
-	}
+  }
 
 	@Override
 	public String toString() {
@@ -357,8 +362,18 @@ class Interval {
 			builder.append('[');
 		} else {
 			builder.append('(');
-		}
-		builder.append(left).append(',').append(right);
+    }
+    if (left == null) {
+      builder.append('-' + INFINITY);
+    } else {
+      builder.append(left);
+    }
+    builder.append(',');
+    if (right == null) {
+      builder.append('+' + INFINITY);
+    } else {
+      builder.append(right);
+    }
 		if (rightInclude) {
 			builder.append(']');
 		} else {
