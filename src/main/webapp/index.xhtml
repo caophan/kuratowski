@@ -42,6 +42,11 @@
 					</p:column>	
 				</p:dataTable>
 			</h:panelGroup>
-		</div>
+    </div>
+    <div class="subset-container">
+      <ui:repeat value="#{listSubSetBean.subsets}" var="item">
+        <h:outputText value="#{item}" />
+      </ui:repeat>
+    </div>
 	</h:body>
 </html>
